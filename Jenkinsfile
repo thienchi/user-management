@@ -8,7 +8,6 @@ node {
 
     // 3. Traefik: http://alb-1236468975.ap-southeast-1.elb.amazonaws.com/ui/dashboard/
 
-
     def imageTag = ''
 
 
