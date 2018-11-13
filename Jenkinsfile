@@ -8,8 +8,41 @@ node {
 
 	// 3. Traefik: http://alb-1236468975.ap-southeast-1.elb.amazonaws.com/ui/dashboard/
 
-	stage('HELLO PIPELINE') {
-		println "Hello, this is Nghia pipeline!"
+    def branch = 'nghia'
+    def buildTag = ''
+
+	stage('PREPARATION') {
+
+
+	    env.JAVA_HOME="${tool 'Java8'}"
+        env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
+        sh 'java -version'
+
+        checkout([$class: 'GitSCM',
+		   branches: [[name: '*/nghia']],
+		   doGenerateSubmoduleConfigurations: false,
+		   extensions: [[$class: 'LocalBranch', localBranch: 'nghia'], [$class: 'CleanBeforeCheckout']],
+		   submoduleCfg: [],
+		   userRemoteConfigs: [[
+		   credentialsId: 'tranductrinh',
+		   url: 'https://github.com/tranductrinh/user-management.git']]])
+
+
+		 buildTag = buildImageTagFromPomFile(branch)
+
+		currentBuild.displayName = buildTag
 	}
 
+
+
+}
+
+// GENERAL HELPERS
+
+String buildImageTagFromPomFile(String branch) {
+	def artifactVersion = fileExists('pom.xml') ? readMavenPom(file: 'pom.xml').version : ''
+	artifactVersion = artifactVersion - '-SNAPSHOT'
+	def gitRev = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+
+	return "$artifactVersion-$branch-$gitRev"
 }
