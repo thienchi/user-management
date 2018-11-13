@@ -32,11 +32,7 @@ node {
                 doGenerateSubmoduleConfigurations: false,
                 extensions                       : [],
                 submoduleCfg                     : [],
-                userRemoteConfigs                :
-                        [
-                                [credentialsId: 'ci-user-ssh',
-                                 url: 'https://github.com/tranductrinh/user-management.git']
-                        ]
+                userRemoteConfigs                : [[credentialsId: 'ci-user-ssh', url: 'https://github.com/tranductrinh/user-management.git']]
         ])
 
         // TODO: build image tag, later we will use this tag to tag docker image in this build
