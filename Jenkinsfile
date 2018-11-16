@@ -33,7 +33,9 @@ node {
 		currentBuild.displayName = buildTag
 	}
 
-
+    stage('BUILD PROJECT') {
+		sh './mvnw clean install'
+	}
 
 }
 
