@@ -37,6 +37,29 @@ node {
 		sh './mvnw clean install'
 	}
 
+	if (!currentBuild.result) {
+    		stage('BUILD IMAGE') {
+    			// TODO: write Dockerfile or you could use any plugin to build an image
+    			// IDEA: if you like Dockerfile https://spring.io/guides/gs/spring-boot-docker/
+
+    			// TODO: enable info endpoint (Spring Actuator), we will use later to verify that application is deployed successfully
+    			// IDEA: https://www.baeldung.com/spring-boot-actuators
+
+    			// TODO: build and tag an image
+    			// IDEA: use 'Shell Script' step to execute docker command
+
+    			sh "docker build -t $buildTag ./backend"
+    		}
+    		stage('PUSH IMAGE') {
+                // TODO: push image to Amazon ECR
+                // IDEA: use 'Shell Script' step to execute docker command
+
+                // TODO: in order to push to Amazon ECR, we need to login to the repository!
+                // use 'withDockerRegistry' step, we have constant AWS_ECR_REPOSITORY_URL and AWS_ECR_CREDENTIALS_ID
+            }
+
+    	}
+
 }
 
 // GENERAL HELPERS
@@ -47,4 +70,17 @@ String buildImageTagFromPomFile(String branch) {
 	def gitRev = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
 
 	return "$artifactVersion-$branch-$gitRev"
+}
+
+// AMAZON HELPERS
+String accountId() {
+	def getCallerIdentityCmd = "aws sts get-caller-identity"
+	println "Executing get caller identity cmd: ${getCallerIdentityCmd}"
+
+	def getCallerIdentityResponse = sh returnStdout: true, script: getCallerIdentityCmd
+	println "Response of get caller identity cmd: ${getCallerIdentityResponse}"
+
+	def getCallerIdentityJson = readJSON text: getCallerIdentityResponse
+
+	return getCallerIdentityJson.Account
 }
