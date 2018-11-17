@@ -46,6 +46,14 @@
             <column name="last_name"  value="User"/>
             <column name="password" value="$2a$10$5JwPPryn0XiOjycadPfsQ.2hAkG8sAGjrd.QKZdtEV9HniVFr4hfq"/>
         </insert>
+        <insert tableName="user">
+            <column name="id" value="c4a03cc4-34a1-488d-a951-3587a9bdf471"/>
+            <column name="username" value="quang"/>
+            <column name="email" value="quang@mgm-tp.com"/>
+            <column name="first_name" value="Quang" />
+            <column name="last_name"  value="Ngo"/>
+            <column name="password" value="$2a$10$5JwPPryn0XiOjycadPfsQ.2hAkG8sAGjrd.QKZdtEV9HniVFr4hfq"/>
+        </insert>
     </changeSet>
 
 </databaseChangeLog>
