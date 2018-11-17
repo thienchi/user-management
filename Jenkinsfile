@@ -17,26 +17,8 @@ node {
 		env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
 		def branch = env.BRANCH_NAME
 
-		checkout([$class: 'GitSCM',
-				branches: [
-					[
-						name: "*/$branch"
-					]
-				],
-				doGenerateSubmoduleConfigurations: false,
-				extensions: [],
-				extensions: [
-					[$class: 'CleanBeforeCheckout'],
-					[$class: 'LocalBranch', localBranch: "**"]
-				],
-				submoduleCfg: [],
-				userRemoteConfigs: [
-					[
-						credentialsId: 'ci-user-ssh',
-						url: 'git@github.com:tranductrinh/user-management.git'
-					]
-				]
-			])
+		git branch: 'ducanh2', credentialsId: 'ci-user-ssh', url: 'https://github.com/tranductrinh/user-management/'
+
 
 		//setup currentBuild:
 		def artifactVersion = fileExists('pom.xml') ? readMavenPom(file:"pom.xml").version : '' 
