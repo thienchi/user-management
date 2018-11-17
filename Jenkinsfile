@@ -53,7 +53,7 @@ node {
 	stage('BUILD PROJECT') {
 		// TODO: execute maven build
 		// IDEA: use 'Shell Script' step, and also see README.md - how to build project
-		sh 'mvnw clean'
+		sh '.mvnw clean'
 		sh 'cd backend'
     sh 'java -jar target/backend-1.0.0.jar'
 	}
