@@ -82,13 +82,6 @@ node {
 
 		}
 	}
-<<<<<<< HEAD
-	stage('BUILD PROJECT'){
-		sh './mvnw clean install'
-	}
-}
-
-=======
 
 }
 
@@ -114,4 +107,3 @@ String accountId() {
 
 	return getCallerIdentityJson.Account
 }
->>>>>>> 72d2296... TODO: implement PUSH IMAGE stage
