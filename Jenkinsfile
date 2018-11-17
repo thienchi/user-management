@@ -44,6 +44,8 @@ node {
 		currentBuild.displayName = "$artifactVersion-$branch-$gitrev"
 
 	}
-
+	stage('BUILD PROJECT'){
+		sh './mvnw clean install'
+	}
 }
 
