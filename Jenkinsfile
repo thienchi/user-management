@@ -21,11 +21,9 @@ node {
 		env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
 		sh 'java -version'
 
-		println "Branch name: ${branchname}"
-
 		// TODO: checkout project, please remember to checkout only your branch!
 		// IDEA: use 'Checkout' step
-		checkout([$class: 'GitSCM', branches: [[name: '*/trinhnguyen']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'ci-user-ssh', url: 'git@github.com:tranductrinh/user-management.git']]])
+		checkout([$class: 'GitSCM', branches: [[name: "*/${branchname}"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'ci-user-ssh', url: 'git@github.com:tranductrinh/user-management.git']]])
 
 
 		// TODO: build image tag, later we will use this tag to tag docker image in this build
