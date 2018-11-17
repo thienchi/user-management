@@ -12,6 +12,10 @@ node {
 		def imageTag = '1.0.1-huu'
 		currentBuild.displayName = imageTag
 		currentBuild.description = 'preparation'
+		pwd()
+
+		sh 'echo "Preparing"'
+
 		// TOTO: clean up docker images which were built before
 		// IDEA: use 'Shell Script' step to remove all docker images
 
