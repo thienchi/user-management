@@ -77,3 +77,12 @@ node {
         }
     }
 }
+
+String accountId() {
+    def getCallerIdentityCmd = "aws sts get-caller-identity"
+    println "Executing get caller identity cmd: ${getCallerIdentityCmd}"
+    def getCallerIdentityResponse = sh returnStdout: true, script: getCallerIdentityCmd
+    println "Response of get caller identity cmd: ${getCallerIdentityResponse}"
+    def getCallerIdentityJson = readJSON text: getCallerIdentityResponse
+    return getCallerIdentityJson.Account
+} 
