@@ -11,5 +11,17 @@ node {
 	stage('HELLO PIPELINE') {
 		println "Hello, this is my first pipeline!"
 	}
+	stage('PREPARATION'){
+		//set up java
+		env.JAVA_HOME = "${tool name: 'Java8', type: 'jdk'}"
+		env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+
+		//setup currentBuild:
+		def branch = env.BRANCH_NAME
+		def artifactVersion = fileExists('pom.xml') ? readMavenPom(file:"pom.xml").version : '' 
+		def gitrev = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+		currentBuild.displayName = "$artifactVersion-$branch-$gitrev"
+
+	}
 
 }
