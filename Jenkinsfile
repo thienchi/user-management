@@ -187,9 +187,11 @@ String registerTaskRevision(String taskDefinitionName, String lbDNSName, String 
             "--region ${region}"
     println "Executing register task definition cmd: ${registerTaskDefinitionCmd}"
     // TODO: use Shell Sript to execute registerTaskDefinitionCmd, parse response
+    def registerTaskDefinitionResponse = sh returnStdout: true, script: registerTaskDefinitionCmd
+    println "Response of register task definition cmd: ${registerTaskDefinitionResponse}"
     // TODO: return registerTaskDefinitionJson.taskDefinition.revision
     def registerTaskDefinitionJson = readJSON text: registerTaskDefinitionResponse
-    return registerTaskDefinitionJson.taskDefinition.revision
+    return registerTaskDefinitionJson.taskDefinition.revisionregisterTaskDefinitionResponse
 }
 boolean serviceExists(String serviceName, String region, String clusterName) {
     def describeServicesCmd = "aws ecs describe-services " +
