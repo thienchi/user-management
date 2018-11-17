@@ -8,10 +8,10 @@ node {
 
 	// 3. Traefik: http://alb-1236468975.ap-southeast-1.elb.amazonaws.com/ui/dashboard/
 
-	currentBuild.displayName = "huu"
-	currentBuild.description = "hello mgm!"
-
 	stage('PREPARATION') {
+		def imageTag = '1.0.1-huu'
+		currentBuild.displayName = imageTag
+		currentBuild.description = 'preparation'
 		// TOTO: clean up docker images which were built before
 		// IDEA: use 'Shell Script' step to remove all docker images
 
