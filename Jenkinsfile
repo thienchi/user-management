@@ -7,59 +7,73 @@ node {
 	// 2. To lean Jenkins pipeline syntax: http://ec2-54-254-226-241.ap-southeast-1.compute.amazonaws.com/job/user-management-multibranch-pipeline/job/master/pipeline-syntax/
 
 	// 3. Traefik: http://alb-1236468975.ap-southeast-1.elb.amazonaws.com/ui/dashboard/
+    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+        credentialsId: 'aws',
+        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
 
-    def branch = 'nghia'
-    def buildTag = ''
-
-	stage('PREPARATION') {
-
-
-	    env.JAVA_HOME="${tool 'Java8'}"
-        env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
-        sh 'java -version'
-
-        checkout([$class: 'GitSCM',
-		   branches: [[name: '*/nghia']],
-		   doGenerateSubmoduleConfigurations: false,
-		   extensions: [[$class: 'LocalBranch', localBranch: 'nghia'], [$class: 'CleanBeforeCheckout']],
-		   submoduleCfg: [],
-		   userRemoteConfigs: [[
-		   credentialsId: 'tranductrinh',
-		   url: 'https://github.com/tranductrinh/user-management.git']]])
+        // CONSTANTS
+        def AWS_ACCOUNT_ID = accountId()
+        def AWS_DEFAULT_REGION = 'ap-southeast-1'
+        def AWS_ECR_REPOSITORY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+        def AWS_ECR_REPOSITORY_URL = "https://${AWS_ECR_REPOSITORY}"
+        def AWS_ECR_CREDENTIALS_ID = "ecr:${AWS_DEFAULT_REGION}:aws"
 
 
-		 buildTag = buildImageTagFromPomFile(branch)
+        def branch = 'nghia'
+        def buildTag = ''
+        def imageName = 'user-management'
 
-		currentBuild.displayName = buildTag
-	}
+        stage('PREPARATION') {
+            // Clean up
+            sh returnStatus: true, script: 'docker rmi -f $(docker images "*nghia*" -q)'
 
-    stage('BUILD PROJECT') {
-		sh './mvnw clean install'
-	}
+            env.JAVA_HOME="${tool 'Java8'}"
+            env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
+            sh 'java -version'
 
-	if (!currentBuild.result) {
-    		stage('BUILD IMAGE') {
-    			// TODO: write Dockerfile or you could use any plugin to build an image
-    			// IDEA: if you like Dockerfile https://spring.io/guides/gs/spring-boot-docker/
+            checkout([$class: 'GitSCM',
+               branches: [[name: '*/nghia']],
+               doGenerateSubmoduleConfigurations: false,
+               extensions: [[$class: 'LocalBranch', localBranch: 'nghia'], [$class: 'CleanBeforeCheckout']],
+               submoduleCfg: [],
+               userRemoteConfigs: [[
+               credentialsId: 'tranductrinh',
+               url: 'https://github.com/tranductrinh/user-management.git']]])
 
-    			// TODO: enable info endpoint (Spring Actuator), we will use later to verify that application is deployed successfully
-    			// IDEA: https://www.baeldung.com/spring-boot-actuators
 
-    			// TODO: build and tag an image
-    			// IDEA: use 'Shell Script' step to execute docker command
+             buildTag = buildImageTagFromPomFile(branch)
 
-    			sh "docker build -t $buildTag ./backend"
-    		}
-    		stage('PUSH IMAGE') {
-                // TODO: push image to Amazon ECR
-                // IDEA: use 'Shell Script' step to execute docker command
+            currentBuild.displayName = buildTag
+        }
 
-                // TODO: in order to push to Amazon ECR, we need to login to the repository!
-                // use 'withDockerRegistry' step, we have constant AWS_ECR_REPOSITORY_URL and AWS_ECR_CREDENTIALS_ID
+        stage('BUILD PROJECT') {
+            sh './mvnw clean install'
+        }
+
+        if (!currentBuild.result) {
+                stage('BUILD IMAGE') {
+                    // TODO: write Dockerfile or you could use any plugin to build an image
+                    // IDEA: if you like Dockerfile https://spring.io/guides/gs/spring-boot-docker/
+
+                    // TODO: enable info endpoint (Spring Actuator), we will use later to verify that application is deployed successfully
+                    // IDEA: https://www.baeldung.com/spring-boot-actuators
+
+                    // TODO: build and tag an image
+                    // IDEA: use 'Shell Script' step to execute docker command
+
+                    sh "docker build -t $imageName:$buildTag ./backend"
+                    sh "docker tag $imageName:$buildTag ${AWS_ECR_REPOSITORY}/$imageName:$buildTag"
+                }
+                stage('PUSH IMAGE') {
+                    // use 'withDockerRegistry' step, we have constant AWS_ECR_REPOSITORY_URL and AWS_ECR_CREDENTIALS_ID
+                    withDockerRegistry(credentialsId: AWS_ECR_CREDENTIALS_ID, url: AWS_ECR_REPOSITORY_URL) {
+                        sh "docker push ${AWS_ECR_REPOSITORY}/$imageName:$buildTag"
+                    }
+                }
+
             }
-
-    	}
-
+    }
 }
 
 // GENERAL HELPERS
