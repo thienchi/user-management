@@ -8,6 +8,9 @@ node {
 
 	// 3. Traefik: http://alb-1236468975.ap-southeast-1.elb.amazonaws.com/ui/dashboard/
 
+	currentBuild.displayName = "Huu"
+	currentBuild.description = "Hello mgm!"
+
 	stage('HELLO HUU PIPELINE') {
 		println "Hello, this is my first pipeline from Huu!"
 	}
