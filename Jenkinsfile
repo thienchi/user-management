@@ -9,6 +9,13 @@ node {
 	// 3. Traefik: http://alb-1236468975.ap-southeast-1.elb.amazonaws.com/ui/dashboard/
 
 	stage('PREPARATION') {
+
+	    def imageTag = "1.0.0-trinh-aaaaa"
+
+	    currentBuild.displayName = imageTag
+
+	    println imageTag
+
 		// TOTO: clean up docker images which were built before
 		// IDEA: use 'Shell Script' step to remove all docker images
 
