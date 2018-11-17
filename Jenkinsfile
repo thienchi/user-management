@@ -104,6 +104,7 @@ node {
                             "--region ${AWS_DEFAULT_REGION}"
                     println "Executing update service cmd: ${updateServiceCmd}"
                     // TODO: use Shell Sript to execute updateServiceCmd
+                    sh updateServiceCmd
                 } else {
                     def createServiceCmd = "aws ecs create-service " +
                             "--cluster ${AWS_ECS_CLUSTER_NAME} " +
@@ -113,9 +114,38 @@ node {
                             "--region ${AWS_DEFAULT_REGION}"
                     println "Executing create service cmd: ${createServiceCmd}"
                     // TODO: use Shell Sript to execute createServiceCmd
+                    sh createServiceCmd
+                }
+            }
+
+            stage('STARTUP VERIFICATION') {
+                def infoUrl = "http://${AWS_LB_DNS_NAME}/${branch}/actuator/info"
+                // TODO: finish this method ;)
+                ping(infoUrl, imageTag)
+            }
+        }
+    }
+}
+
+def ping(String url, String imageTag) {
+    println "Executing ping url: ${url} in 5 minutes to verify version must be: ${imageTag}"
+    try {
+        timeout time: 5, unit: 'MINUTES', {
+            waitUntil {
+                try {
+                    // TODO: how about using Shell Script to curl ;), parse response
+                    // and version must equal to imageTag input!
+                    true
+                }
+                catch (error) {
+                    println error
+                    false
                 }
             }
         }
+    }
+    catch (failure) {
+        error 'Deployment verification failed after 5 minutes'
     }
 }
 
@@ -133,9 +163,16 @@ String loadBalancerDNSName(String region) {
             "--region ${region}"
     println "Executing describe load balancers cmd: ${describeLoadBalancersCmd}"
     // TODO: use Shell Sript to execute describeLoadBalancersCmd
+    def describeLoadBalancersResponse = sh returnStdout: true, script: describeLoadBalancersCmd
+    println "Response of describe load balancers cmd: ${describeLoadBalancersResponse}"
     // TODO: use readJSON to parse response
+    def describeLoadBalancersJson = readJSON text: describeLoadBalancersResponse
     // TODO: verify that response must contain only one Load Balancer
+    if (describeLoadBalancersJson.LoadBalancers.size() != 1) {
+        error 'Expect one LoadBalancer, but found more than one or none!'
+    }
     // TODO: return something likes describeLoadBalancersJson.LoadBalancers[0].DNSName
+    return describeLoadBalancersJson.LoadBalancers[0].DNSName
 }
 
 String registerTaskRevision(String taskDefinitionName, String lbDNSName, String branch, String repository, String region, String imageTag) {
@@ -151,6 +188,8 @@ String registerTaskRevision(String taskDefinitionName, String lbDNSName, String 
     println "Executing register task definition cmd: ${registerTaskDefinitionCmd}"
     // TODO: use Shell Sript to execute registerTaskDefinitionCmd, parse response
     // TODO: return registerTaskDefinitionJson.taskDefinition.revision
+    def registerTaskDefinitionJson = readJSON text: registerTaskDefinitionResponse
+    return registerTaskDefinitionJson.taskDefinition.revision
 }
 boolean serviceExists(String serviceName, String region, String clusterName) {
     def describeServicesCmd = "aws ecs describe-services " +
