@@ -8,7 +8,6 @@ node {
 
 	// 3. Traefik: http://alb-1236468975.ap-southeast-1.elb.amazonaws.com/ui/dashboard/
 
-	def branchname = env.BRANCH_NAME
 
 	stage('PREPARATION') {
 		// TOTO: clean up docker images which were built before
@@ -24,7 +23,7 @@ node {
 
 		// TODO: checkout project, please remember to checkout only your branch!
 		// IDEA: use 'Checkout' step
-		checkout([$class: 'GitSCM', branches: [[name: '*/$branchname']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'ci-user-ssh', url: 'git@github.com:tranductrinh/user-management.git']]])
+		checkout([$class: 'GitSCM', branches: [[name: '*/trinhnguyen']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'ci-user-ssh', url: 'git@github.com:tranductrinh/user-management.git']]])
 
 
 		// TODO: build image tag, later we will use this tag to tag docker image in this build
